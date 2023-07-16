@@ -23,6 +23,7 @@
             android:id="@+id/et_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:importantForAutofill="noExcludeDescendants"
             android:hint="@string/name_hint"
             android:inputType="textCapWords" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -43,6 +44,7 @@
             android:id="@+id/et_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:importantForAutofill="noExcludeDescendants"
             android:hint="@string/count_hint"
             android:inputType="number" />
     </com.google.android.material.textfield.TextInputLayout>
