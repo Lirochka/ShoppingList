@@ -7,19 +7,25 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.shoppinglist.R
 import com.example.shoppinglist.databinding.FragmentShopItemBinding
 import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.presentation.viewmodel.ShopItemViewModel
-import com.google.android.material.textfield.TextInputLayout
+import com.example.shoppinglist.presentation.viewmodel.ViewModelFactory
+import javax.inject.Inject
 
 class ShopItemFragment : Fragment() {
 
     private lateinit var viewModel: ShopItemViewModel
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    private val component by lazy {
+        (requireActivity().application as ShopApp).component
+    }
+
     private lateinit var onEditingFinishedListener: OnEditingFinishedListener
 
     private var _binding: FragmentShopItemBinding? = null
@@ -30,17 +36,20 @@ class ShopItemFragment : Fragment() {
     private var shopItemId: Int = ShopItem.UNDEFINED_ID
 
     override fun onAttach(context: Context) {
+        component.inject(this)
         super.onAttach(context)
-        if (context is OnEditingFinishedListener){
+        if (context is OnEditingFinishedListener) {
             onEditingFinishedListener = context
         } else {
             throw RuntimeException("Activity must implement OnEditingFinishedListener")
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         parseParams()
     }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,7 +61,7 @@ class ShopItemFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[ShopItemViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -106,7 +115,8 @@ class ShopItemFragment : Fragment() {
         binding.saveButton.setOnClickListener {
             viewModel.editShopItem(
                 binding.etName.text?.toString(),
-                binding.etCount.text?.toString())
+                binding.etCount.text?.toString()
+            )
         }
     }
 
@@ -114,7 +124,8 @@ class ShopItemFragment : Fragment() {
         binding.saveButton.setOnClickListener {
             viewModel.addShopItem(
                 binding.etName.text?.toString(),
-                binding.etCount.text?.toString())
+                binding.etCount.text?.toString()
+            )
         }
     }
 
@@ -135,9 +146,11 @@ class ShopItemFragment : Fragment() {
             shopItemId = args.getInt(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
         }
     }
-    interface OnEditingFinishedListener{
+
+    interface OnEditingFinishedListener {
         fun onEditingFinished()
     }
+
     companion object {
         private const val SCREEN_MODE = "extra_mode"
         private const val SHOP_ITEM_ID = "extra_shop_item_id"
@@ -155,7 +168,7 @@ class ShopItemFragment : Fragment() {
 
         fun newInstanceEditItem(shopItemId: Int): ShopItemFragment {
             return ShopItemFragment().apply {
-                arguments = Bundle().apply{
+                arguments = Bundle().apply {
                     putString(SCREEN_MODE, MODE_EDIT)
                     putInt(SHOP_ITEM_ID, shopItemId)
                 }
